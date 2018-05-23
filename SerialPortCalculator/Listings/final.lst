@@ -1,0 +1,293 @@
+C51 COMPILER V9.57.0.0   FINAL                                                             05/18/2018 22:25:08 PAGE 1   
+
+
+C51 COMPILER V9.57.0.0, COMPILATION OF MODULE FINAL
+OBJECT MODULE PLACED IN .\Objects\final.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE final.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\fin
+                    -al.lst) TABS(2) OBJECT(.\Objects\final.obj)
+
+line level    source
+
+   1          //Jason Chang    015610151
+   2          //Zachery Takkesh 015656509
+   3          #include <ds89c4xx.h>
+   4          #include <math.h>
+   5          
+   6          // Receive function
+   7          // This function receives the ASCII code via HyperTerminal
+   8          // for any character on keyboard
+   9          // returns character to main 
+  10          unsigned char receive(void){
+  11   1        
+  12   1          while (RI_0 == 0);
+  13   1          //clear receive interrupt flag
+  14   1          RI_0 = 0;
+  15   1          return SBUF0;
+  16   1      }
+  17          
+  18          // Transfer function
+  19          // This function takes in a variable from
+  20          // main and outputs via HyperTerminal
+  21          void transfer(unsigned char send){
+  22   1        
+  23   1        SBUF0 = send;
+  24   1        while(TI_0 == 0);
+  25   1        // clear transfer interrupt flag
+  26   1        TI_0 = 0;
+  27   1        
+  28   1      }
+  29          
+  30          // Main function
+  31          void main (void){
+  32   1        
+  33   1      // Initialize Variables for each bit input
+  34   1      unsigned char op1, op2, op3, operator, op4, op5, op6;
+  35   1      
+  36   1      // Variable for left and right hand sign of operation
+  37   1      unsigned char operand1, operand2;
+  38   1      
+  39   1      // Variable for each bit place holder
+  40   1      unsigned int  bit_9, bit_8, bit_7, bit_6, bit_5;
+  41   1      unsigned int  bit_4, bit_3, bit_2, bit_1 ;  
+  42   1      
+  43   1      // long data type required for power operation
+  44   1      long  result, temp; 
+  45   1      
+  46   1        // Initialize timer mode
+  47   1        TMOD  = 0x20; // 8-bit auto reload mode
+  48   1        TH1   = 0xFD; // baud rate for 9600
+  49   1        SCON0 = 0x50; // 8-bit data, 1 stop bit, 1 start bit
+  50   1        TR1   = 1;    // start timer 
+  51   1        
+  52   1        // Continuous  loop
+  53   1        while (1)
+  54   1        {
+C51 COMPILER V9.57.0.0   FINAL                                                             05/18/2018 22:25:08 PAGE 2   
+
+  55   2          
+  56   2        // Clearing all of the bits for a new  set of arithmetic operation
+  57   2         bit_9    = 0;
+  58   2         bit_8    = 0;
+  59   2         bit_7    = 0;  
+  60   2         bit_6    = 0;
+  61   2         bit_5    = 0;
+  62   2         bit_4    = 0;
+  63   2           bit_3    = 0;
+  64   2         bit_2    = 0;
+  65   2         bit_1    = 0;
+  66   2         result      = 0;   
+  67   2         temp = 0;
+  68   2          
+  69   2          // 1st bit receive and transfer
+  70   2          op1 = receive();
+  71   2          transfer(op1);
+  72   2          
+  73   2          // convert from ASCII to number
+  74   2          op1 = op1 - 48;
+  75   2        
+  76   2          // 2nd bit receive and transfer
+  77   2          op2 = receive();
+  78   2          transfer(op2);
+  79   2          
+  80   2          // convert from ASCII to number
+  81   2          op2 = op2 - 48;
+  82   2          
+  83   2          // 3rd bit receive and transfer
+  84   2          op3 = receive();
+  85   2          transfer(op3);
+  86   2          
+  87   2          // convert from ASCII to number
+  88   2          op3 = op3 - 48;
+  89   2      
+  90   2          // combine the first three inputs 
+  91   2          operand1 =(op1*100)+ (op2*10) + op3;
+  92   2          
+  93   2          
+  94   2          // operator receive and transfer (4th bit)
+  95   2          operator = receive();
+  96   2          transfer(operator);
+  97   2          
+  98   2          //4th bit receive and transfer
+  99   2          op4 = receive();
+ 100   2          transfer(op4);
+ 101   2          
+ 102   2          //convert from ASCII to number
+ 103   2          op4 = op4 - 48;
+ 104   2          
+ 105   2          //5th bit receive and transfer
+ 106   2          op5 = receive();
+ 107   2          transfer(op5);
+ 108   2          
+ 109   2          //convert from ASCII to number
+ 110   2          op5 = op5 - 48;
+ 111   2          
+ 112   2          //6th bit receive and transfer
+ 113   2          op6 = receive();
+ 114   2          transfer(op6);
+ 115   2          
+ 116   2          //convert from ASCII to number
+C51 COMPILER V9.57.0.0   FINAL                                                             05/18/2018 22:25:08 PAGE 3   
+
+ 117   2          op6 = op6 - 48;
+ 118   2      
+ 119   2          //combine last three inputs 
+ 120   2          operand2 = (op4*100) + (op5*10) + op6;
+ 121   2          
+ 122   2          
+ 123   2          
+ 124   2        // Conditional evalution statements
+ 125   2          // for arithmetic operations
+ 126   2        
+ 127   2        // add operation
+ 128   2         if(operator == '+')
+ 129   2            result = operand1 + operand2;
+ 130   2         
+ 131   2         // subtract operation
+ 132   2         else if(operator == '-')
+ 133   2            result = operand1 - operand2;
+ 134   2         
+ 135   2         // multiply operation
+ 136   2         else if(operator == '*')
+ 137   2            result = operand1 * operand2;
+ 138   2         
+ 139   2         // divide operation
+ 140   2         else if(operator == '/' )
+ 141   2            result = operand1 / operand2;
+ 142   2         
+ 143   2         // power operation 
+ 144   2         else if(operator == '^')
+ 145   2            result =  pow(operand1,operand2);
+ 146   2              
+ 147   2        // default condition
+ 148   2         else
+ 149   2           result = 'E';
+ 150   2          
+ 151   2          
+ 152   2        // Set result into temp to get the
+ 153   2        // accurate bit in each number location
+ 154   2        temp = result;
+ 155   2      
+ 156   2          // Value at hundred-millionth spot 
+ 157   2          while (temp >= 100000000)
+ 158   2          {
+ 159   3            temp = temp - 100000000; 
+ 160   3            bit_9 = bit_9 + 1; 
+ 161   3          }
+ 162   2          // Value at ten-millionth spot
+ 163   2          while (temp >= 10000000)
+ 164   2          {
+ 165   3            temp = temp  - 10000000; 
+ 166   3            bit_8 = bit_8 + 1; 
+ 167   3          }
+ 168   2          
+ 169   2          // Value at millionth spot
+ 170   2          while (temp >= 1000000)
+ 171   2          {
+ 172   3            temp = temp  - 1000000; 
+ 173   3            bit_7 = bit_7 + 1; 
+ 174   3          }
+ 175   2          
+ 176   2          // Value at hundred-thousandth spot
+ 177   2          while (temp >= 100000)
+ 178   2          {
+C51 COMPILER V9.57.0.0   FINAL                                                             05/18/2018 22:25:08 PAGE 4   
+
+ 179   3            temp = temp  - 100000; 
+ 180   3            bit_6 = bit_6 + 1; 
+ 181   3          }
+ 182   2          
+ 183   2          // Value at ten-thousandth spot
+ 184   2          while (temp >= 10000)
+ 185   2          {
+ 186   3            temp = temp  - 10000; 
+ 187   3            bit_5 = bit_5 + 1; 
+ 188   3          }
+ 189   2          
+ 190   2          // Value at thousandth spot
+ 191   2          while (temp >= 1000)
+ 192   2          {
+ 193   3            temp = temp  - 1000; 
+ 194   3            bit_4 = bit_4 + 1; 
+ 195   3          }
+ 196   2          
+ 197   2          // Value at hundredth spot
+ 198   2          while (temp >= 100)
+ 199   2          {
+ 200   3            temp = temp - 100; 
+ 201   3            bit_3 = bit_3 + 1; 
+ 202   3          }
+ 203   2          
+ 204   2          // Value at tenth spot
+ 205   2          while (temp >= 10)
+ 206   2          {
+ 207   3            temp = temp - 10; 
+ 208   3            bit_2 = bit_2 + 1; 
+ 209   3          }
+ 210   2          // Value at ones spot
+ 211   2          while (temp >= 1)
+ 212   2          {
+ 213   3            temp = temp - 1 ; 
+ 214   3            bit_1 = bit_1 + 1; 
+ 215   3          }
+ 216   2          
+ 217   2        // Convert each value location back to ASCII
+ 218   2          bit_9  = bit_9 + 48;
+ 219   2          bit_8  = bit_8 + 48;
+ 220   2          bit_7  = bit_7 + 48;
+ 221   2          bit_6  = bit_6 + 48;
+ 222   2          bit_5  = bit_5 + 48;
+ 223   2          bit_4  = bit_4 + 48;
+ 224   2          bit_3  = bit_3 + 48;
+ 225   2          bit_2  = bit_2 + 48;
+ 226   2          bit_1  = bit_1 + 48;
+ 227   2          
+ 228   2         // for visual purposes
+ 229   2         // being sent back to terminal
+ 230   2         // new line
+ 231   2         transfer('\n');
+ 232   2         // carriage return
+ 233   2         transfer('\r');
+ 234   2         // equal sign
+ 235   2         transfer(61);
+ 236   2         // space sign 
+ 237   2         transfer(32);
+ 238   2         
+ 239   2         // transfer each bit back to terminal 
+ 240   2         // bit_9 being the most significant bit(hundred-millionth)
+C51 COMPILER V9.57.0.0   FINAL                                                             05/18/2018 22:25:08 PAGE 5   
+
+ 241   2         // bit_1 being the least signicant bit(ones)
+ 242   2         transfer(bit_9);
+ 243   2         transfer(bit_8);
+ 244   2         transfer(bit_7);
+ 245   2         transfer(bit_6);
+ 246   2         transfer(bit_5);
+ 247   2         transfer(bit_4);
+ 248   2         transfer(bit_3);
+ 249   2         transfer(bit_2);
+ 250   2         transfer(bit_1);
+ 251   2         
+ 252   2         // new line transfer for visual purposes
+ 253   2         transfer('\n');
+ 254   2         // carriage return to start at beginning of line
+ 255   2         transfer('\r');
+ 256   2         // visual pointer for terminal  
+ 257   2         transfer('>');
+ 258   2        
+ 259   2        } // end of continous loop
+ 260   1        
+ 261   1      } // end of main function
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    999    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      27
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
